@@ -63,7 +63,7 @@ streamlit run app.py
 
 Open the local URL Streamlit prints. Register a user for chat, and sign in as the admin to upload PDF, Word, Excel, PowerPoint, text, HTML, or image files.
 
-Set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` when you want traces in the `rag-cache` LangSmith project. Restart Streamlit after `.env` changes.
+Set `LANGSMITH_TRACING=true`, `LANGSMITH_API_KEY`, and `LANGSMITH_PROJECT` when you want traces. EU accounts use `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com`. Restart Streamlit after `.env` changes.
 
 ```powershell
 python -m unittest discover -s tests -v

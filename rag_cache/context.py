@@ -109,7 +109,8 @@ def _configure_langsmith(settings: Settings) -> None:
         os.environ["LANGCHAIN_API_KEY"] = settings.langsmith_api_key
         os.environ["LANGSMITH_PROJECT"] = settings.langsmith_project
         os.environ["LANGCHAIN_PROJECT"] = settings.langsmith_project
-        os.environ["LANGSMITH_ENDPOINT"] = "https://api.smith.langchain.com"
+        os.environ["LANGSMITH_ENDPOINT"] = settings.langsmith_endpoint
+        os.environ["LANGCHAIN_ENDPOINT"] = settings.langsmith_endpoint
         return
     os.environ["LANGSMITH_TRACING"] = "false"
     os.environ["LANGCHAIN_TRACING_V2"] = "false"

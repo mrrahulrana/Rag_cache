@@ -1,4 +1,4 @@
-NO_INFO_ANSWER = "I dont have information about quesry, please provide more information."
+NO_INFO_ANSWER = "I dont have information about query, please provide more information."
 
 ANSWER_SYSTEM = f"""You answer questions using only the document excerpts provided in the user message.
 Do not use outside knowledge, prior training facts, or the conversation itself as a source of facts.

@@ -57,6 +57,7 @@ class Settings:
     admin_last_name: str
     langsmith_tracing: bool
     langsmith_api_key: str
+    langsmith_endpoint: str
     langsmith_project: str
     upload_dir: Path
 
@@ -91,6 +92,7 @@ class Settings:
             admin_last_name=_env("ADMIN_LAST_NAME", "User"),
             langsmith_tracing=_env_bool("LANGSMITH_TRACING", False),
             langsmith_api_key=_env("LANGSMITH_API_KEY", ""),
-            langsmith_project=_env("LANGSMITH_PROJECT", "rag-cache"),
+            langsmith_endpoint=_env("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com").rstrip("/"),
+            langsmith_project=_env("LANGSMITH_PROJECT", "rag_cache"),
             upload_dir=ROOT / "data" / "uploads",
         )
