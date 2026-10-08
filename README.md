@@ -2,6 +2,37 @@
 
 Local retrieval-augmented chat with a cache at each expensive step. Admins upload documents. Users register, log in, and continue their own chats later. Answers are returned only from uploaded documents.
 
+## Ask graph
+
+A question enters the LangGraph at `prepare` and stops at the first cache that can answer it. A miss falls through to the next node. `generate` always stores the exact answer in Redis before the graph ends. After the graph returns, the chat session saves both messages in PostgreSQL and summarizes older turns once the session reaches 20 messages.
+
+```mermaid
+flowchart TD
+    start([Question]) --> prepare
+    prepare["prepare<br/>Load the session summary and rewrite a follow-up into a standalone question"] --> exact_cache
+    exact_cache{"exact_cache<br/>Redis: same question and corpus version"}
+    exact_cache -->|hit| done([END])
+    exact_cache -->|miss| embed
+    embed["embed<br/>Redis embedding, or Ollama nomic-embed-text"] --> semantic_cache
+    semantic_cache{"semantic_cache<br/>pgvector: similar previous answer, similarity above 0.92"}
+    semantic_cache -->|hit, refresh exact answer| done
+    semantic_cache -->|miss| retrieve
+    retrieve{"retrieve<br/>Redis passages, or pgvector chunks with similarity above 0.60"}
+    retrieve -->|no matching passage| noinfo["Store the no-information answer"]
+    noinfo --> done
+    retrieve -->|passages found| generate
+    generate["generate<br/>Redis LLM response, or Ollama llama3.2:1b<br/>Then store the LLM response, semantic answer, and exact answer"] --> done
+```
+
+| Node | On a hit | On a miss |
+|---|---|---|
+| `prepare` | Always continues. Uses the summary only to resolve follow-ups. | |
+| `exact_cache` | Return the stored answer and sources. | Embed the question. |
+| `embed` | Reuse the query vector from Redis. | Call `nomic-embed-text` and store the vector. |
+| `semantic_cache` | Return the previous answer and copy it into the exact answer cache. | Search passages. |
+| `retrieve` | Reuse the ranked passages from Redis. | Search active chunks in pgvector. No chunk above 0.60 ends the graph with the no-information reply. |
+| `generate` | Reuse the completion from Redis. | Call `llama3.2:1b` with temperature 0. A grounded answer is also saved in the semantic cache. |
+
 ## Stack
 
 - Streamlit chat and admin upload pages
